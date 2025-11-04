@@ -25,6 +25,7 @@ func main() {
 			// Pass through to git
 			executeGitCommand(args)
 		},
+		SilenceErrors: true, // Suppress error output so we can handle it ourselves
 	}
 
 	// Version command
@@ -51,6 +52,7 @@ func main() {
 		Use:   "commit",
 		Short: "Record changes to the repository",
 		Aliases: []string{"ci"},
+		DisableFlagParsing: true, // Pass all flags through to git
 		Run: func(cmd *cobra.Command, args []string) {
 			executeGitCommandWithColor("commit", args...)
 		},
@@ -60,6 +62,7 @@ func main() {
 	var logCmd = &cobra.Command{
 		Use:   "log",
 		Short: "Show commit logs with enhanced formatting",
+		DisableFlagParsing: true, // Pass all flags through to git
 		Run: func(cmd *cobra.Command, args []string) {
 			showLog(args)
 		},
@@ -69,6 +72,7 @@ func main() {
 	var pushCmd = &cobra.Command{
 		Use:   "push",
 		Short: "Update remote refs along with associated objects",
+		DisableFlagParsing: true, // Pass all flags through to git
 		Run: func(cmd *cobra.Command, args []string) {
 			executePush(args)
 		},
@@ -78,6 +82,7 @@ func main() {
 	var pullCmd = &cobra.Command{
 		Use:   "pull",
 		Short: "Fetch from and integrate with another repository or branch",
+		DisableFlagParsing: true, // Pass all flags through to git
 		Run: func(cmd *cobra.Command, args []string) {
 			executePull(args)
 		},
@@ -107,8 +112,9 @@ func main() {
 			// Extract the command and pass it through to git
 			args := os.Args[1:]
 			if len(args) > 0 {
+				// Suppress the error message and just pass through
 				executeGitCommand(args)
-				return
+				os.Exit(0)
 			}
 		}
 		fmt.Println(err)
