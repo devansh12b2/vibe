@@ -18,26 +18,54 @@ Vibe is a delightful Git wrapper written in Go that adds color, better UX, and h
 - Go 1.21 or higher
 - Git installed on your system
 
-### Build from Source
+### Quick Install (Recommended)
+
+Install Vibe globally with a single command:
+
+```bash
+go install github.com/devansh12b2/vibe@latest
+```
+
+This will install `vibe` to your `$GOPATH/bin` directory (usually `~/go/bin`).
+
+**Important:** Make sure `$GOPATH/bin` is in your PATH:
+
+```bash
+# Add to ~/.zshrc (for macOS/zsh) or ~/.bashrc (for Linux/bash)
+export PATH="$PATH:$HOME/go/bin"
+
+# Then reload your shell configuration
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+### Verify Installation
+
+Check that Vibe is installed correctly:
+
+```bash
+vibe version
+```
+
+You should see: `Vibe v0.1.0`
+
+### Build from Source (Alternative)
+
+If you want to build from source:
 
 ```bash
 # Clone the repository
-cd "/Users/devamish/Documents/Vibe Wrap"
+git clone https://github.com/devansh12b2/vibe.git
+cd vibe
 
 # Download dependencies
 go mod download
 
-# Build the binary
-go build -o vibe
-
-# (Optional) Install to your PATH
-sudo mv vibe /usr/local/bin/
-```
-
-Or use `go install`:
-
-```bash
+# Build and install globally
 go install
+
+# Or build locally
+go build -o vibe
+./vibe version
 ```
 
 ## 📖 Usage
