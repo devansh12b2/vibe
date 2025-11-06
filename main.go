@@ -8,9 +8,15 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 var version = "0.1.0"
+
+// Check if output is going to a terminal
+func isTerminal() bool {
+	return term.IsTerminal(int(os.Stdout.Fd()))
+}
 
 func main() {
 	var rootCmd = &cobra.Command{
@@ -145,12 +151,20 @@ func executeGitCommandWithColor(command string, args ...string) {
 
 // showStatus displays an enhanced git status
 func showStatus() {
+	// Disable colors if not outputting to a terminal
+	useColors := isTerminal()
+	color.NoColor = !useColors
+	
 	cyan := color.New(color.FgCyan, color.Bold)
 	green := color.New(color.FgGreen)
 	red := color.New(color.FgRed)
 	yellow := color.New(color.FgYellow)
 
-	cyan.Println("✨ Repository Status")
+	if useColors {
+		cyan.Println("✨ Repository Status")
+	} else {
+		fmt.Println("Repository Status")
+	}
 	fmt.Println()
 
 	// Get current branch
@@ -172,7 +186,11 @@ func showStatus() {
 	} else {
 		branch = strings.TrimSpace(string(branchOutput))
 	}
-	cyan.Printf("📍 Branch: ")
+	if useColors {
+		cyan.Printf("📍 Branch: ")
+	} else {
+		fmt.Print("Branch: ")
+	}
 	fmt.Println(branch)
 	fmt.Println()
 
@@ -180,12 +198,20 @@ func showStatus() {
 	statusCmd := exec.Command("git", "status", "--short")
 	statusOutput, err := statusCmd.Output()
 	if err != nil {
-		red.Println("❌ Error getting status")
+		if useColors {
+			red.Println("❌ Error getting status")
+		} else {
+			fmt.Println("Error getting status")
+		}
 		return
 	}
 
 	if len(statusOutput) == 0 {
-		green.Println("✅ Working tree clean - good vibes!")
+		if useColors {
+			green.Println("✅ Working tree clean - good vibes!")
+		} else {
+			fmt.Println("Working tree clean")
+		}
 		return
 	}
 
@@ -197,13 +223,29 @@ func showStatus() {
 		}
 
 		if strings.HasPrefix(line, "M ") || strings.HasPrefix(line, " M") {
-			yellow.Printf("📝 %s\n", line)
+			if useColors {
+				yellow.Printf("📝 %s\n", line)
+			} else {
+				yellow.Printf("Modified: %s\n", line)
+			}
 		} else if strings.HasPrefix(line, "A ") {
-			green.Printf("➕ %s\n", line)
+			if useColors {
+				green.Printf("➕ %s\n", line)
+			} else {
+				green.Printf("Added: %s\n", line)
+			}
 		} else if strings.HasPrefix(line, "D ") {
-			red.Printf("➖ %s\n", line)
+			if useColors {
+				red.Printf("➖ %s\n", line)
+			} else {
+				red.Printf("Deleted: %s\n", line)
+			}
 		} else if strings.HasPrefix(line, "??") {
-			cyan.Printf("❓ %s\n", line)
+			if useColors {
+				cyan.Printf("❓ %s\n", line)
+			} else {
+				cyan.Printf("Untracked: %s\n", line)
+			}
 		} else {
 			fmt.Println(line)
 		}
@@ -224,42 +266,71 @@ func showLog(args []string) {
 
 // executePush handles push with feedback
 func executePush(args []string) {
+	useColors := isTerminal()
+	color.NoColor = !useColors
+	
 	cyan := color.New(color.FgCyan, color.Bold)
 	green := color.New(color.FgGreen, color.Bold)
 	
-	cyan.Println("🚀 Pushing changes...")
+	if useColors {
+		cyan.Println("🚀 Pushing changes...")
+	} else {
+		fmt.Println("Pushing changes...")
+	}
 	fmt.Println()
 	
 	fullArgs := append([]string{"push"}, args...)
 	executeGitCommand(fullArgs)
 	
 	fmt.Println()
-	green.Println("✅ Push complete!")
+	if useColors {
+		green.Println("✅ Push complete!")
+	} else {
+		green.Println("Push complete!")
+	}
 }
 
 // executePull handles pull with feedback
 func executePull(args []string) {
+	useColors := isTerminal()
+	color.NoColor = !useColors
+	
 	cyan := color.New(color.FgCyan, color.Bold)
 	green := color.New(color.FgGreen, color.Bold)
 	
-	cyan.Println("⬇️  Pulling changes...")
+	if useColors {
+		cyan.Println("⬇️  Pulling changes...")
+	} else {
+		fmt.Println("Pulling changes...")
+	}
 	fmt.Println()
 	
 	fullArgs := append([]string{"pull"}, args...)
 	executeGitCommand(fullArgs)
 	
 	fmt.Println()
-	green.Println("✅ Pull complete!")
+	if useColors {
+		green.Println("✅ Pull complete!")
+	} else {
+		green.Println("Pull complete!")
+	}
 }
 
 // checkVibes shows a fun overview of the repository
 func checkVibes() {
+	useColors := isTerminal()
+	color.NoColor = !useColors
+	
 	cyan := color.New(color.FgCyan, color.Bold)
 	green := color.New(color.FgGreen)
 	yellow := color.New(color.FgYellow)
 	magenta := color.New(color.FgMagenta)
 
-	cyan.Println("🎵 Checking the vibes...")
+	if useColors {
+		cyan.Println("🎵 Checking the vibes...")
+	} else {
+		fmt.Println("Repository Overview")
+	}
 	fmt.Println()
 
 	// Get commit count
@@ -267,7 +338,11 @@ func checkVibes() {
 	commitOutput, err := commitCmd.Output()
 	if err == nil {
 		commits := strings.TrimSpace(string(commitOutput))
-		magenta.Printf("📊 Total commits: %s\n", commits)
+		if useColors {
+			magenta.Printf("📊 Total commits: %s\n", commits)
+		} else {
+			magenta.Printf("Total commits: %s\n", commits)
+		}
 	}
 
 	// Get contributor count
@@ -275,7 +350,11 @@ func checkVibes() {
 	contributorOutput, err := contributorCmd.Output()
 	if err == nil {
 		contributors := strings.Split(strings.TrimSpace(string(contributorOutput)), "\n")
-		yellow.Printf("👥 Contributors: %d\n", len(contributors))
+		if useColors {
+			yellow.Printf("👥 Contributors: %d\n", len(contributors))
+		} else {
+			yellow.Printf("Contributors: %d\n", len(contributors))
+		}
 	}
 
 	// Get current branch
@@ -283,7 +362,11 @@ func checkVibes() {
 	branchOutput, err := branchCmd.Output()
 	if err == nil {
 		branch := strings.TrimSpace(string(branchOutput))
-		cyan.Printf("🌿 Current branch: %s\n", branch)
+		if useColors {
+			cyan.Printf("🌿 Current branch: %s\n", branch)
+		} else {
+			cyan.Printf("Current branch: %s\n", branch)
+		}
 	}
 
 	// Check if working tree is clean
@@ -291,13 +374,23 @@ func checkVibes() {
 	statusOutput, err := statusCmd.Output()
 	if err == nil {
 		if len(statusOutput) == 0 {
-			green.Println("✨ Status: Clean - immaculate vibes!")
+			if useColors {
+				green.Println("✨ Status: Clean - immaculate vibes!")
+			} else {
+				green.Println("Status: Clean")
+			}
 		} else {
-			yellow.Println("📝 Status: Changes detected - creative energy flowing!")
+			if useColors {
+				yellow.Println("📝 Status: Changes detected - creative energy flowing!")
+			} else {
+				yellow.Println("Status: Changes detected")
+			}
 		}
 	}
 
 	fmt.Println()
-	cyan.Println("🎉 The vibes are strong with this one!")
+	if useColors {
+		cyan.Println("🎉 The vibes are strong with this one!")
+	}
 }
 
